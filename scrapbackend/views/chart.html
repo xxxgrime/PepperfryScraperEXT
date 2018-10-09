@@ -1,0 +1,101 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <script>
+    var dataPoints = [{ x: "", y: "" }];
+    var result;
+
+    var xhttp = new XMLHttpRequest();
+  
+    async function add2list() {
+
+       dataPoints = [{ x: "", y: "" }];
+      var done = new Promise((resolve, reject) => {
+
+        xhttp.onreadystatechange = function () {
+
+          if (this.readyState == 4) {
+            result = JSON.parse(this.responseText);
+            
+            resolve("")
+            for (i = 0; i < result.length; i++) { console.log(result[i]) }
+          }
+        }
+      })
+
+      xhttp.open("GET", "http://localhost:3000/chart");
+      //xhttp.setRequestHeader("Content-type","application/json");
+      //var data = JSON.stringify(omg);
+      xhttp.send();
+      await done;
+    }
+
+    async function dataset() {
+      var push = new Promise((resolve, reject) => {
+        for (i = 0; i < result.length; i++) {
+        
+          dataPoints.push({ x: result[i].price, y: result[i].views, name: result[i].name, brand: result[i].brand, material: result[i].material, link: result[i].link })
+            
+      }
+        resolve("")
+      })
+      await push;
+    }
+
+    function render(){
+        var chart = new CanvasJS.Chart("chartContainer",
+          {
+            toolTip: {
+              content: "name: {name}, views: {y},brand: {brand}, {material}",
+            },
+
+            axisX: {
+
+              title: "Prices of items",
+              valueFormatString: "#,##0.##",
+              prefix:"RS:",
+               minimum: 5000,
+              maximum: 50000
+          
+            },
+            axisY: {
+              title: "Item Views"
+            },
+          title: {
+              text: "Pricing vs Views"
+            },
+            data: [
+              {
+                type: "scatter",
+                markerType:"triangle",
+                dataPoints
+              },
+            ]
+          });
+
+      chart.render();
+    }
+
+
+async function doit(){
+  await add2list()
+  await dataset()
+  if (dataPoints.length == 49) { dataPoints.shift() }
+  render()
+}
+
+  </script>
+  <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+</head>
+
+<body>
+  <div id="chartContainer" style="height: 300px; width: 100%;">
+  </div>
+  <div ><button style="margin-bottom:10px;position:relative;left:50%" type="button" id="add" onclick="doit()">Get items</button>  </div>
+
+  
+
+</body>
+
+</html>
